@@ -27,7 +27,7 @@ module DatadogHelpers
 
     if status && status >= 400
       assert span.get_tag("http.status_code") == status.to_s
-      assert span.get_tag("error.type") == error # "Error #{status}"
+      assert span.get_tag("error.type") == error
       # assert !span.get_tag(error_tag).nil?
       assert span.status == 1
     elsif error
