@@ -70,9 +70,6 @@ module HTTPX
       else
         transition(:idle)
       end
-      on(:activate) do
-        @current_session.select_connection(self, @current_selector)
-      end
       on(:close) do
         next if @exhausted # it'll reset
 
@@ -675,7 +672,9 @@ module HTTPX
         return unless @state == :inactive
 
         nextstate = :open
-        emit(:activate)
+
+        # activate
+        @current_session.select_connection(self, @current_selector)
       end
       @state = nextstate
     end
