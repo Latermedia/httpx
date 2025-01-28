@@ -69,8 +69,6 @@ module HTTPX
       while (connection = @pool.pop_connection)
         next if connection.state == :closed
 
-        connection.current_session = self
-        connection.current_selector = selector
         select_connection(connection, selector)
       end
       begin
@@ -126,6 +124,8 @@ module HTTPX
     end
 
     def select_connection(connection, selector)
+      connection.current_session = self
+      connection.current_selector = selector
       selector.register(connection)
     end
 
@@ -160,8 +160,6 @@ module HTTPX
       new_connection = connection.class.new(connection.origin, connection.options)
 
       new_connection.family = family
-      new_connection.current_session = self
-      new_connection.current_selector = selector
 
       connection.once(:tcp_open) { new_connection.force_reset(true) }
       connection.once(:connect_error) do |err|
@@ -202,9 +200,6 @@ module HTTPX
       end
 
       connection = @pool.checkout_connection(request_uri, options)
-
-      connection.current_session = self
-      connection.current_selector = selector
 
       case connection.state
       when :idle
